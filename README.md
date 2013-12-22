@@ -5,8 +5,11 @@ Vectorized approach to multinomial Naive Bayes binary classifier
 
 I made [Naive Bayes classifier before](https://github.com/toshiakit/classification), but it was not vectorized. This is a new vectorized implementation based on [this page](http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html).
 
-How to use
-----------
+__UPDATE__ mySpamFilter.m was added, which extends myNaiveBayes with file processing capability. It requires [Porter Stemmer](http://tartarus.org/martin/PorterStemmer/). Here is the [m-file version](http://tartarus.org/martin/PorterStemmer/matlab.txt). Change the file extension from .txt to .m for use.
+
+
+How to use (myNaiveBayes.m)
+-------------------------
 
 First instantiate a Naive Bayes object. 
 
@@ -20,8 +23,7 @@ Once the object is trained, you can call predict method to get classification fo
 
     p = nb.predict(new_predictors);
 
-Inputs and outputs
--------------------
+### Inputs and outputs 
 
 predictors is a m x n matrix where m = number of emails and n = number of words in vocabulary that represents the word counts for each word in the vocabulary in each email. 
 
@@ -35,8 +37,41 @@ responses is m x 1 vector of binary classification where spam = 1 and ham = 0.
     email1     1
     email2     0
 
+How to use (mySpamFilter.m)
+---------------------------
+
+First instantiate an object.
+
+    nb = mySpamFilter();
+
+Then, build dataset from a local directory where you stored [SpamAssassin corups](http://spamassassin.apache.org/publiccorpus/). 
+
+    nb.buildDataset();
+    
+Next, train the model using the training set, and use the test set to evaluate it. 
+
+    nb.buildModel();
+    
+Finally, use the model to classify a new email.
+
+    predicted_class = nb.classifyEmail('emailSample1.txt')
+    
+### Inputs and outputs
+
+When no inputs are specified for buildDataset() method, then it uses default values. 
+* data source = 'ds_reduced', the directory where the downloaded corpus is located. The corpus is expected to be grouped into 'easy\_ham', 'hard\_ham' and 'spam' subfolders.  
+* split = 0.7, meaning 70% of the dataset set will be used as training set. 
+* repeat = false, meaning the split is randomized each time you run the method. Set it to true if you want to repeat the same split. 
+
+Here is an example of using different settings: data source = 'ds_full, split = 0.8, and repeat = true.
+
+    nb.buildDataset('ds_full',0.8,true);
+
+
 Explanation
 -----------
+
+### Bayesian Thorem
 
 We want to compute P(class|word) using Bayesian Theorem, which means "probability of class given a word". 
 
@@ -58,8 +93,8 @@ So the equation changes to:
 
     log(p(class|word)) = log(p(word|class)) + log(p(class))
     
-Probability Estimation
-----------------------
+### Probability Estimation
+
 
 The prior p(class) can be estimated as follows.
 
@@ -77,8 +112,7 @@ There is a one problem: log(0) results in error, so we want to apply Raplace smo
 
     log(p(word|class)) = log(count of word by class + 1) - log(total number of words by class + 1)
     
-Prediction
------------
+### Prediction
 
 Once we have the prior and conditional probabilities, we can predict the class of new emails as follows.
 
