@@ -88,6 +88,12 @@ classdef myNaiveBayes < handle % subclass 'handle' superclass
             % 
             %   log(p(word|class)) = log(count of word by class + 1)  
             %               - log(total number of words by class + 1)
+            % 
+            % Raplace smoothing in effect adds a baselne probability
+            % for words that appear very rarely, so that we don't get
+            % completely get zero probability. Instead of 1/1, we can
+            % use 1/size of vocabulary to represent that a word occurs
+            % at least once for each class.
             
             % store wc of spam in row 1, wc of ham in row 2...
             self.condprob = [sum(X(isspam,:)); sum(X(~isspam,:))];
@@ -98,8 +104,9 @@ classdef myNaiveBayes < handle % subclass 'handle' superclass
             % divide it by total number of words by class + 1
             % but it becomes subtracton in log
             for i = 1:2
+                % add the size of vocabulary rather than 1
                 self.condprob(i,:) = self.condprob(i,:)...
-                    - log(totalcount(i)+1);
+                    - log(totalcount(i)+size(X,2));
             end
             
         end
