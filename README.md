@@ -17,7 +17,7 @@ First instantiate a Naive Bayes object.
   
 Then use the object to call train method with a training dataset
 
-    nb.train(precictors, responses);
+    nb.train(predictors, response);
   
 Once the object is trained, you can call predict method to get classification for a new dataset. 
 
@@ -33,7 +33,7 @@ predictors is a m x n matrix where m = number of emails and n = number of words 
     
 responses is m x 1 vector of binary classification where spam = 1 and ham = 0. 
 
-            resp
+            label (spam = 1, ham = 0)
     email1     1
     email2     0
 
@@ -111,7 +111,11 @@ But we want to convert it to log, and division becomes subtraction.
 There is a one problem: log(0) results in error, so we want to apply Raplace smoothing by adding 1. 
 
     log(p(word|class)) = log(count of word by class + 1) - log(total number of words by class + 1)
-    
+
+Raplace smoothing in effect adds a baselne probability for all the words, so that rare words don't get 0% or 100% probability of spam or ham. So the reasonable starting point is that a word can occur at least once in each class. Instead of using 1/1, we can use 1/size of the vocabulary. 
+
+    log(p(word|class)) = log(count of word by class + 1) - log(total number of words by class + size of vocabulary)
+
 ### Prediction
 
 Once we have the prior and conditional probabilities, we can predict the class of new emails as follows.
