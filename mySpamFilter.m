@@ -31,14 +31,36 @@ classdef mySpamFilter < myNaiveBayes
     %       predicted_class = nb.classifyEmail('emailSample1.txt')
     
     properties
-        vocab;
-        Xtrain;
-        ytrain;
-        Xtest;
-        ytest;
+        vocab;      % list of words in vocabulary
+        Xtrain;     % training set - predictors
+        ytrain;     % training set - response
+        Xtest;      % test set     - predictors
+        ytest;      % test set     - response
     end
     
     methods
+        % buildDataset(self,'data_src',split,repeat)
+        %   build training and test sets from files
+        % buildModel(self)
+        %   build Naive Bayes model from the trainig set;
+        %   produce evalutation with the test set
+        % evaluate(self)
+        %   called by buildModel() to run evaluation
+        % predicted_class = classifyEmail(self,filename)
+        %   read an email as a text file and classify it
+        % [file_contents,labels] = getFileContents(self,ds)
+        %   called by buildDataset() to parse the file content
+        % fileList = getFileList(~,ds)
+        %   called by getFileContents() to generate a list of files
+        % file_contents = readFile(~,filename)
+        %   called by getFileContents() to read a text file
+        % tokens = tokenizeEmail(~,email)
+        %   called by getFileContents() to tokenize the text
+        % tdf = computeTDF(~,file_contents,word_list)
+        %   called by buildDataset() to compute TDF
+        % word_list = createWordList(~,file_contents)
+        %   called by buildDataset() to create a word list
+        
         function buildDataset(self,data_src,split,repeat)
             % define default input args
             switch nargin
@@ -56,7 +78,7 @@ classdef mySpamFilter < myNaiveBayes
                     repeat = false;
             end
             
-            fprintf('Starting the training process...\n\n')
+            fprintf('Start building the dataset...\n\n')
             
             % enable parallel computing
             poolobj = gcp('nocreate');
@@ -91,6 +113,7 @@ classdef mySpamFilter < myNaiveBayes
             fprintf('\nTrainig set: %d of %d files (%.2f%%)...\n\n',...
                 sum(istrain),m,split*100)
             tabulate(self.ytrain)
+            fprintf('\n')
             
             % create a list of all words
             word_list = createWordList(self,train_contents);
